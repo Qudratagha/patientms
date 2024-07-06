@@ -1,0 +1,14 @@
+:root{
+        --#{$prefix}header-dark-item-color:         #e9ecef;
+        --#{$prefix}header-dark-bg:                   #{$white};
+        --#{$prefix}topnav-bg:                      #0576b9;
+        --#{$prefix}input-bg:                         #{$white};
+        --#{$prefix}input-border-color:               #{$gray-300};
+        --#{$prefix}input-focus-border-color:         #{darken($gray-300, 10%)};
+        --#{$prefix}form-select-focus-border-color:   #{darken($gray-300, 10%)};
+        --#{$prefix}white:                            #{$white};
+}
+.accordion {
+        --#{$prefix}accordion-color: #{$gray-900};
+}
+
