@@ -13,10 +13,14 @@ class Patients extends Model
     protected  $guarded = [];
 
     public function medicalHistory(){
-        return $this->hasMany('App\Models\MedicalHistory', 'patientID', 'id');
+        return $this->hasOne('App\Models\MedicalHistory', 'patientID', 'id');
     }
 
     public function medications(){
         return $this->hasMany('App\Models\Medication', 'patientID', 'id');
+    }
+
+    public function guardian(){
+        return $this->hasOne('App\Models\Guardian', 'patientID', 'id');
     }
 }

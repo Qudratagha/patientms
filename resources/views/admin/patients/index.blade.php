@@ -90,18 +90,6 @@
             $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
                 $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
             });
-
-            // $('.datatable-user').DataTable(dtOverrideGlobals);
-
-            // let table = $('.datatable-user').DataTable(dtOverrideGlobals);
-            //
-            // $('#search-name').on('keyup', function () {
-            //     table.ajax.reload();
-            // });
-            //
-            // $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-            //     $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-            // });
         });
     </script>
 @endsection

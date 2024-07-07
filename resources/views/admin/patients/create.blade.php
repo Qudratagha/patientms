@@ -238,7 +238,7 @@
                                 <div id="medicineRows">
                                     <div class="row mb-2 align-items-end medicine-row">
                                         <div class="col-3">
-                                            <label for="m_date" class="form-label">Date</label>
+                                            <label for="date" class="form-label">Date</label>
                                             <input type="date" class="form-control" name="date[]">
                                         </div>
                                         <div class="col-4">
@@ -256,7 +256,7 @@
                                             <label for="dose" class="form-label">Dose</label>
                                             <select name="dose[]" class="form-control" autocomplete="off">
                                                 <option value="">Select</option>
-                                                <option value="1">1ml</option>
+                                                <option value="1ml">1ml</option>
                                                 <option value="1.5ml">1.5ml</option>
                                                 <option value="5ml">5ml</option>
                                             </select>
@@ -302,7 +302,7 @@
                 var newRow = `
             <div class="row mb-2 align-items-end medicine-row">
                 <div class="col-3">
-                    <input type="date" class="form-control" name="m_date[]">
+                    <input type="date" class="form-control" name="date[]">
                 </div>
                 <div class="col-4">
                     <select name="medicine[]" class="form-control" autocomplete="off">
@@ -315,7 +315,7 @@
                     </select>
                 </div>
                 <div class="col-4">
-                    <select name="m_dose[]" class="form-control" autocomplete="off">
+                    <select name="dose[]" class="form-control" autocomplete="off">
                         <option value="">Select</option>
                         <option value="1">1ml</option>
                         <option value="1.5ml">1.5ml</option>

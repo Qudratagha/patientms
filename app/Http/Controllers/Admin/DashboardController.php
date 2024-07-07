@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Patients;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -24,6 +25,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('admin/dashboard');
+        $totalPatients = Patients::count();
+
+        // Return the view with totalPatients variable
+//        return view('dashboard', compact('totalPatients'));
+        return view('admin/dashboard', compact('totalPatients'));
     }
 }

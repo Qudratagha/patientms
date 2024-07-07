@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePatientsRequest;
 use App\Http\Requests\UpdatePatientsRequest;
+use App\Models\Guardian;
 use App\Models\MedicalHistory;
 use App\Models\Medication;
 use App\Models\Patients;
@@ -106,6 +107,14 @@ class PatientsController extends Controller
             'city' => $request->city,
             'address' => $request->address
         ]);
+        $guardian = Guardian::create([
+            'patientID' => $patient->id,
+            'guardian_name' => $request->guardian_name,
+            'relation' => $request->relation,
+            'g_phone' => $request->g_phone,
+            'g_email' => $request->g_email,
+        ]);
+
         $medicalHistory = MedicalHistory::create([
             'patientID' => $patient->id,
             'disease' => $request->disease,
@@ -116,26 +125,14 @@ class PatientsController extends Controller
         $date = $request->date;
         $medicine = $request->medicine;
         $dose = $request->dose;
-
-        // Check if any of the fields have data
-        if ($date || $medicine || $dose) {
-            // Assuming $patient is defined somewhere before
-            $medications = [];
-
-            // Create an array of medications with non-empty fields
-            for ($i = 0; $i < count($date); $i++) {
-                if (!empty($date[$i]) || !empty($medicine[$i]) || !empty($dose[$i])) {
-                    $medications[] = [
-                        'patientID' => $patient->id,
-                        'date' => $date[$i],
-                        'medicine' => $medicine[$i],
-                        'dose' => $dose[$i],
-                    ];
-                }
-            }
-            // Insert medications using Eloquent's insert method for bulk insert
-            if (!empty($medications)) {
-                Medication::insert($medications);
+        if (!empty($date) || !empty($medicine) || !empty($dose)) {
+            foreach ($date as $key => $value) {
+                Medication::create([
+                    'patientID' => $patient->id,
+                    'date' => $date[$key] ?? null,
+                    'medicine' => $medicine[$key] ?? null,
+                    'dose' => $dose[$key] ?? null,
+                ]);
             }
         }
 
@@ -148,34 +145,110 @@ class PatientsController extends Controller
      */
     public function show(Patients $patients, $id)
     {
-        $patient = Patients::findorfail($id);
-        dd($patient->load('medicalHistory', 'medications'));
-
-        return view('admin.patients.show', compact('patients'));
+        $patient = Patients::with(['guardian', 'medicalHistory', 'medications'])->findOrFail($id);
+        return view('admin.patients.show', compact('patient'));
 
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Patients $patients)
+    public function edit(Patients $patients, $id)
     {
-        //
+        $patient = Patients::with(['guardian', 'medicalHistory', 'medications'])->findOrFail($id);
+        return view('admin.patients.edit', compact('patient'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePatientsRequest $request, Patients $patients)
+    public function update(UpdatePatientsRequest $request, $id)
     {
-        //
+        $patient = Patients::findOrFail($id);
+        $patient->update([
+            'name' => $request->name,
+            'gender' => $request->gender,
+            'date_of_birth' => $request->date_of_birth,
+            'blood_group' => $request->blood_group,
+            'marital_status' => $request->marital_status,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'remarks' => $request->remarks,
+            'country' => $request->country,
+            'city' => $request->city,
+            'address' => $request->address
+        ]);
+
+        // Update the Guardian
+        $guardian = Guardian::where('patientID', $id)->first();
+        if ($guardian) {
+            $guardian->update([
+                'guardian_name' => $request->guardian_name,
+                'relation' => $request->relation,
+                'g_phone' => $request->g_phone,
+                'g_email' => $request->g_email,
+            ]);
+        }
+
+        // Update or Create Medical History
+        $medicalHistory = MedicalHistory::where('patientID', $id)->first();
+        if ($medicalHistory) {
+            $medicalHistory->update([
+                'disease' => $request->disease,
+                'no_of_visits' => $request->no_of_visits,
+                'doctor' => $request->doctor,
+            ]);
+        } else {
+            // Create new MedicalHistory record
+            $medicalHistory = MedicalHistory::create([
+                'patientID' => $id,
+                'disease' => $request->disease,
+                'no_of_visits' => $request->no_of_visits,
+                'doctor' => $request->doctor,
+            ]);
+        }
+
+        // Update or Create Medications
+
+        // Process new medication data
+        $date = $request->date;
+        $medicine = $request->medicine;
+        $dose = $request->dose;
+
+        if (!empty($date) && !empty($medicine) && !empty($dose)) {
+            Medication::where('patientID', $id)->delete();
+            foreach ($date as $key => $value) {
+                $medicationData = [
+                    'patientID' => $id,
+                    'date' => $date[$key] ?? null,
+                    'medicine' => $medicine[$key] ?? null,
+                    'dose' => $dose[$key] ?? null,
+                ];
+                // Create new medication
+                Medication::create($medicationData);
+            }
+        }
+        $request->session()->flash('message', 'Patient Updated successfully!');
+        return view('admin.patients.index');
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Patients $patients)
+    public function destroy(Request $request, $id)
     {
-        //
+        $patient = Patients::findOrFail($id);
+
+        // Delete associated records (guardians, medical histories, medications)
+        $patient->guardian()->delete();
+        $patient->medicalHistory()->delete();
+        $patient->medications()->delete();
+
+        // Delete the patient record itself
+        $patient->delete();
+        $request->session()->flash('message', 'Patient Deleted successfully!');
+        return view('admin.patients.index');
+
     }
 }
